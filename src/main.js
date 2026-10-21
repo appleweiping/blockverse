@@ -16,6 +16,28 @@ let game = null;
 let screens = null;
 let store = null;
 
+function hasWebGL2() {
+  try {
+    return !!document.createElement('canvas').getContext('webgl2');
+  } catch {
+    return false;
+  }
+}
+
+// Phones and tablets: there are no touch controls, so say so up front.
+function isTouchOnly() {
+  return window.matchMedia('(pointer: coarse)').matches &&
+    !window.matchMedia('(any-pointer: fine)').matches;
+}
+
+function showNoWebGL(detail) {
+  screens.showNotice('This browser could not start WebGL 2', [
+    'Blockverse draws the world with WebGL 2. It works in current Chrome, Edge, Firefox and Safari 15+.',
+    'If you are on one of those, check that hardware acceleration is enabled in the browser settings.',
+    ...(detail ? [`Details: ${detail}`] : []),
+  ], [['Back to title', () => screens.showMain()]]);
+}
+
 async function boot() {
   store = await SaveStore.open();
   sfx.setVolume(loadSettings().volume);
@@ -33,7 +55,16 @@ async function boot() {
     },
   });
 
-  screens.showMain();
+  if (!hasWebGL2()) {
+    showNoWebGL();
+  } else if (isTouchOnly()) {
+    screens.showNotice('Keyboard and mouse needed', [
+      'Blockverse is a desktop game: you move with WASD and look around with the mouse.',
+      'There are no touch controls yet, so on a phone or tablet you can browse the menus but not really play.',
+    ], [['Continue anyway', () => screens.showMain()]]);
+  } else {
+    screens.showMain();
+  }
 }
 
 async function startWorld(id) {
@@ -42,13 +73,22 @@ async function startWorld(id) {
   screens.showLoading(`Loading "${meta.name}"…`);
 
   const settings = screens.settings;
-  game = new Game({
-    canvas,
-    atlas,
-    worldMeta: { ...meta, renderDistance: settings.renderDistance },
-    store,
-    sfx,
-  });
+  try {
+    game = new Game({
+      canvas,
+      atlas,
+      worldMeta: { ...meta, renderDistance: settings.renderDistance },
+      store,
+      sfx,
+    });
+  } catch (err) {
+    // Usually WebGL context creation failing (blocklisted GPU, headless
+    // browser without a software renderer). Don't leave the loading screen up.
+    console.error(err);
+    game = null;
+    showNoWebGL(err?.message);
+    return;
+  }
   game.applySettings(settings);
 
   game.uiHooks = {

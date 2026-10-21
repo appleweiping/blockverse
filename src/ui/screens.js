@@ -263,6 +263,26 @@ export class Screens {
     this.onApplySettings?.(this.settings);
   }
 
+  // ---------- notices (no WebGL, touch-only device, errors) ----------
+
+  showNotice(heading, lines, actions = []) {
+    const el = this.screen();
+    this.current = 'notice';
+    this.title(el, false);
+    const box = document.createElement('div');
+    box.className = 'notice';
+    const h = document.createElement('h2');
+    h.textContent = heading;
+    box.appendChild(h);
+    for (const line of lines) {
+      const p = document.createElement('p');
+      p.textContent = line;
+      box.appendChild(p);
+    }
+    el.appendChild(box);
+    for (const [label, fn] of actions) el.appendChild(this.btn(label, fn, 'btn small'));
+  }
+
   // ---------- death ----------
 
   showDeath() {

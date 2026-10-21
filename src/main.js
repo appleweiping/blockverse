@@ -127,18 +127,5 @@ function quitToTitle() {
 
 boot();
 
-// ---- dev/verification helpers (harmless in production) ----
-window.__app = { get game() { return game; }, atlas, sfx };
+// Handy from the devtools console: __game.player, __game.world, ...
 Object.defineProperty(window, '__game', { get: () => game, configurable: true });
-Object.defineProperty(window, '__world', { get: () => game?.world, configurable: true });
-
-window.__snap = (name = 'snap', w = 640) => {
-  if (!game) return Promise.resolve('no game');
-  game.renderer.render(game.scene, game.camera);
-  const c = document.createElement('canvas');
-  const h = Math.round(w * canvas.height / canvas.width);
-  c.width = w; c.height = h;
-  c.getContext('2d').drawImage(canvas, 0, 0, w, h);
-  return fetch(`/__snap?name=${name}`, { method: 'POST', body: c.toDataURL('image/jpeg', 0.85) })
-    .then((r) => r.text()).catch(() => 'no endpoint');
-};

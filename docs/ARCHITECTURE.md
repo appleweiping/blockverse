@@ -1,4 +1,4 @@
-# BlockVerse Architecture
+# Blockverse architecture
 
 A technical tour of how the engine works. Everything runs client-side; the
 only dependencies are **three.js** (rendering) and **Vite** (bundling).
@@ -71,6 +71,24 @@ chunk applies the feature lists of its **3×3 chunk neighborhood**. Feature
 lists are derived only from `(seed, cx, cz)`, so every chunk that overlaps a
 tree computes the exact same blocks for it — no seams, no ordering issues.
 
+### Sky islands and wind vents
+
+`islandAt(x, z)` in `worldgen.js` returns the island column at a position, or
+nothing: a 2D noise mask above a threshold gives the thickness, a second,
+slower noise field gives the altitude (about 90-105), and columns closer than
+12 blocks to the terrain are skipped. Natural vents are a per-chunk feature
+placed on dry ground in the band just below the threshold, only when an island
+column is within 8 blocks; vents are applied after all other features and
+clear their column so no tree grows into it.
+
+`src/world/wind.js` holds the rules. `liftAt(world, x, y, z)` scans down from
+the entity's cell: a vent within 72 blocks with only passable cells in between
+gives a lift of 1, fading to 0 over the last 6 blocks; anything solid or
+liquid gives 0. The player pushes toward an upward speed of 9 blocks/s while
+lifted, and after leaving a column falls at most 3.5 blocks/s with no fall
+damage until landing. Chunks keep a set of their vent cells so the particle
+effect (`render/windFx.js`) does not have to scan blocks.
+
 ## 3. Lighting
 
 `src/world/light.js` implements the classic two-channel voxel light model:
@@ -79,8 +97,8 @@ tree computes the exact same blocks for it — no seams, no ordering issues.
   attenuating through leaves (1) and water (2). Lateral spread uses BFS with
   loss 1 per step. The special rule: level-15 light propagating **downward**
   through air stays 15.
-- **Block light**: emitters (torch 14, ember lamp 15, lit furnace 13) BFS
-  outward with loss 1 (+opacity).
+- **Block light**: emitters (torch 14, ember lamp 15, lit furnace 13,
+  skystone 7) BFS outward with loss 1 (+opacity).
 
 On block change (`lightBlockChange`):
 
@@ -118,7 +136,7 @@ quad diagonal flips when needed to avoid the classic AO anisotropy artifact.
 Smooth lighting averages the four light cells adjacent to each vertex.
 
 The fragment shader computes
-`brightness = max(blockLight, skyLight * uDay)`, so night dims sunlight but
+`brightness = max(blockLight, skyLight * uDay) + 0.04`, so night dims sunlight but
 never torches. Fog is distance-based with colors driven by the sky system.
 
 ### Textures
@@ -166,7 +184,8 @@ Settings live in `localStorage`.
 ```
 Game.loop()
 ├── advance time of day → uDay uniform, sky colors, sun/moon/stars/clouds
-├── player.update()        input → physics → survival stats
+├── player.update()        input → physics (incl. wind lift) → survival stats
+├── windFx.update()        particles in nearby vent columns
 ├── interaction.update()   raycast, breaking progress, placement
 ├── entities.update()      drops + mobs
 ├── mobSpawner.update()

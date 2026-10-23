@@ -93,7 +93,7 @@ export class Sky {
     });
     this.clouds = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), cloudMat);
     this.clouds.rotation.x = -Math.PI / 2;
-    this.clouds.position.y = 108;
+    this.clouds.position.y = 160; // above the sky islands and the top of a wind column
     this.cloudTex.repeat.set(3, 3);
     scene.add(this.clouds);
 

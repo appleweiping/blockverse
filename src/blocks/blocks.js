@@ -203,7 +203,7 @@ reg(def(B.MUSHROOM_BROWN, 'mushroom_brown', 'Brown Mushroom', { solid: false, re
 reg(def(B.MUSHROOM_RED, 'mushroom_red', 'Red Mushroom', { solid: false, render: R_CROSS, opacity: 0, hardness: 0.05, sound: 'leaf' }));
 // Sky islands are made of skystone; wind vents push things straight up
 // (see world/wind.js).
-reg(def(B.SKYSTONE, 'skystone', 'Skystone', { hardness: 1.2, tool: TOOL_PICKAXE, minTier: 1 }));
+reg(def(B.SKYSTONE, 'skystone', 'Skystone', { hardness: 1.2, tool: TOOL_PICKAXE, minTier: 1, lightEmit: 7 }));
 reg(def(B.WIND_VENT, 'wind_vent', 'Wind Vent', {
   hardness: 2, tool: TOOL_PICKAXE, minTier: 1,
   textures: { top: 'wind_vent_top', bottom: 'skystone', side: 'wind_vent_side' },

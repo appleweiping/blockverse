@@ -135,7 +135,7 @@ export class Player {
       if (this.lift > 0) {
         // ride the column up; sneak to sink back down it
         const target = this.sneaking ? -2.5 : LIFT_SPEED;
-        this.vy += (target - this.vy) * Math.min(1, 4 * dt) * this.lift;
+        this.vy += (target - this.vy) * Math.min(1, 6 * dt) * this.lift;
         this.vy -= GRAVITY * dt * (1 - this.lift);
         // the column keeps you near its middle unless you walk out
         this.vx += (Math.floor(this.x) + 0.5 - this.x) * 5 * dt;

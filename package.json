@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "An open-source voxel sandbox game for the browser. Original code, procedurally generated textures and synthesized audio.",
+  "description": "A block-building sandbox for the browser with sky islands you reach by riding wind vents.",
   "license": "MIT",
   "repository": {
     "type": "git",

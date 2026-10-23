@@ -8,7 +8,7 @@
 | Mouse | Look around (click the game once to capture the mouse) |
 | Space | Jump; hold to swim upward in water |
 | Ctrl (hold) | Sprint (needs food > 3 drumsticks) |
-| Shift (hold) | Sneak — slower, and you cannot walk off block edges |
+| Shift (hold) | Sneak — slower, and you cannot walk off block edges; inside a wind column, sink |
 | Space ×2 (creative) | Toggle flight; Space/Shift to fly up/down |
 
 ## Interaction

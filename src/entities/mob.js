@@ -58,11 +58,12 @@ export class Mob {
   // subclass hook — assemble boxes into this.group, push materials
   buildModel() {}
 
-  part(w, h, d, color, x, y, z) {
+  // glow: ignore world light (eyes that stay visible at night)
+  part(w, h, d, color, x, y, z, glow = false) {
     const mat = new THREE.MeshBasicMaterial({ color, vertexColors: true });
     const m = new THREE.Mesh(shadedBox(w, h, d), mat);
     m.position.set(x, y, z);
-    this.materials.push({ mat, base: new THREE.Color(color) });
+    this.materials.push({ mat, base: new THREE.Color(color), glow });
     this.group.add(m);
     return m;
   }
@@ -133,8 +134,8 @@ export class Mob {
     const bl = this.world.getBlockLightW(Math.floor(this.x), Math.floor(this.y + 0.5), Math.floor(this.z));
     const day = this.world.materials.uniforms.uDay.value;
     const light = Math.max(0.12, Math.max((sky / 15) * day, bl / 15));
-    for (const { mat, base } of this.materials) {
-      mat.color.copy(base).multiplyScalar(light);
+    for (const { mat, base, glow } of this.materials) {
+      mat.color.copy(base).multiplyScalar(glow ? 1 : light);
       if (this.flashTime > 0) mat.color.lerp(new THREE.Color(0xff3333), 0.55);
     }
   }

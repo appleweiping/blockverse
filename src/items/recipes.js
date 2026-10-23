@@ -24,7 +24,7 @@ shapeless(B.OAK_PLANKS, 4, [[B.OAK_LOG]]);
 shapeless(B.BIRCH_PLANKS, 4, [[B.BIRCH_LOG]]);
 shapeless(B.SPRUCE_PLANKS, 4, [[B.SPRUCE_LOG]]);
 shaped(I.STICK, 4, ['X', 'X'], { X: ANY_PLANKS });
-shaped(B.CRAFTING_TABLE, 1, ['XX', 'XX'], { X: ANY_PLANKS });
+shaped(B.WORKBENCH, 1, ['XX', 'XX'], { X: ANY_PLANKS });
 shaped(B.FURNACE, 1, ['XXX', 'X.X', 'XXX'], { X: [B.COBBLESTONE] });
 shaped(B.TORCH, 4, ['C', 'S'], { C: [I.COAL], S: [I.STICK] });
 
@@ -48,7 +48,7 @@ for (const [mat, pick, axe, shovel, sword] of TOOL_MATS) {
 shaped(B.STONE_BRICKS, 4, ['XX', 'XX'], { X: [B.STONE] });
 shaped(B.SANDSTONE, 1, ['XX', 'XX'], { X: [B.SAND] });
 shaped(B.BRICKS, 1, ['XX', 'XX'], { X: [I.BRICK_ITEM] });
-shaped(B.GLOWSTONE, 1, ['XX', 'XX'], { X: [I.REDSTONE_DUST] });
+shaped(B.EMBER_LAMP, 1, ['XX', 'XX'], { X: [I.EMBER_DUST] });
 shapeless(B.MOSSY_COBBLE, 1, [[B.COBBLESTONE], [B.TALL_GRASS]]);
 
 // ---- matching ----
@@ -120,8 +120,8 @@ export const SMELTING = new Map([
   [B.SAND, { id: B.GLASS, count: 1 }],
   [B.COBBLESTONE, { id: B.STONE, count: 1 }],
   [I.CLAY_BALL, { id: I.BRICK_ITEM, count: 1 }],
-  [I.PORKCHOP_RAW, { id: I.PORKCHOP_COOKED, count: 1 }],
-  [I.MUTTON_RAW, { id: I.MUTTON_COOKED, count: 1 }],
+  [I.PORK_RAW, { id: I.PORK_ROAST, count: 1 }],
+  [I.MUTTON_RAW, { id: I.MUTTON_ROAST, count: 1 }],
 ]);
 
 export const SMELT_TIME = 10; // seconds per item

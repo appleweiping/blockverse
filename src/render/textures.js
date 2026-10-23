@@ -368,7 +368,7 @@ tile('coal_ore', (ctx, rng) => ore(ctx, rng, [[40, 40, 44], [24, 24, 28], [58, 5
 tile('iron_ore', (ctx, rng) => ore(ctx, rng, [[216, 176, 140], [196, 152, 116], [232, 198, 168]]));
 tile('gold_ore', (ctx, rng) => ore(ctx, rng, [[248, 210, 70], [222, 180, 50], [255, 232, 120]]));
 tile('diamond_ore', (ctx, rng) => ore(ctx, rng, [[96, 226, 222], [64, 196, 200], [160, 246, 240]]));
-tile('redstone_ore', (ctx, rng) => ore(ctx, rng, [[212, 44, 32], [170, 30, 24], [244, 88, 70]]));
+tile('ember_ore', (ctx, rng) => ore(ctx, rng, [[212, 44, 32], [170, 30, 24], [244, 88, 70]]));
 
 // --- special blocks ---
 tile('glass', (ctx, rng) => {
@@ -382,7 +382,7 @@ tile('glass', (ctx, rng) => {
   for (let i = 0; i < 4; i++) px(ctx, 9 + i, 13 - i, [240, 250, 254, 90]);
 });
 
-tile('glowstone', (ctx, rng) => {
+tile('ember_lamp', (ctx, rng) => {
   fillNoise(ctx, rng, [[[252, 218, 108], 6], [[240, 190, 70], 4], [[212, 150, 52], 3], [[255, 240, 170], 2]]);
 });
 
@@ -394,7 +394,7 @@ tile('torch', (ctx, rng) => {
   px(ctx, 7, 2, [255, 140, 40]);
 });
 
-tile('crafting_table_top', (ctx, rng) => {
+tile('workbench_top', (ctx, rng) => {
   planks(ctx, rng, P.woodOak);
   rect(ctx, 0, 0, TILE, 1, P.barkOakD);
   rect(ctx, 0, TILE - 1, TILE, 1, P.barkOakD);
@@ -406,7 +406,7 @@ tile('crafting_table_top', (ctx, rng) => {
   rect(ctx, 12, 3, 1, 10, P.barkOakD);
 });
 
-tile('crafting_table_side', (ctx, rng) => {
+tile('workbench_side', (ctx, rng) => {
   planks(ctx, rng, P.woodOak);
   rect(ctx, 0, 0, TILE, 2, shade(P.woodOak, 1.1));
   // implied tool shapes
@@ -414,7 +414,7 @@ tile('crafting_table_side', (ctx, rng) => {
   rect(ctx, 9, 5, 4, 4, shade(P.barkOakD, 1.2));
 });
 
-tile('crafting_table_front', (ctx, rng) => {
+tile('workbench_front', (ctx, rng) => {
   planks(ctx, rng, P.woodOak);
   rect(ctx, 0, 0, TILE, 2, shade(P.woodOak, 1.1));
   rect(ctx, 4, 5, 8, 6, P.barkOakD);
@@ -573,7 +573,7 @@ tile('diamond', (ctx) => {
   px(ctx, 5, 6, [230, 255, 253]);
 });
 
-tile('redstone_dust', (ctx, rng) => {
+tile('ember_dust', (ctx, rng) => {
   for (let i = 0; i < 30; i++) {
     const x = 3 + ((rng() * 10) | 0);
     const y = 8 + ((rng() * 6) | 0) - (((x - 8) * (x - 8)) >> 3);
@@ -592,10 +592,10 @@ function meat(ctx, rng, flesh, fleshD, edge) {
   rect(ctx, 11, 10, 3, 2, [240, 236, 224]);
 }
 
-tile('porkchop_raw', (ctx, rng) => meat(ctx, rng, [238, 140, 140], [216, 110, 110], [246, 190, 180]));
-tile('porkchop_cooked', (ctx, rng) => meat(ctx, rng, [180, 112, 60], [150, 88, 44], [214, 152, 96]));
-tile('mutton_raw', (ctx, rng) => meat(ctx, rng, [210, 90, 90], [180, 66, 66], [232, 150, 140]));
-tile('mutton_cooked', (ctx, rng) => meat(ctx, rng, [160, 96, 48], [132, 74, 36], [196, 134, 82]));
+tile('raw_pork', (ctx, rng) => meat(ctx, rng, [238, 140, 140], [216, 110, 110], [246, 190, 180]));
+tile('roast_pork', (ctx, rng) => meat(ctx, rng, [180, 112, 60], [150, 88, 44], [214, 152, 96]));
+tile('raw_mutton', (ctx, rng) => meat(ctx, rng, [210, 90, 90], [180, 66, 66], [232, 150, 140]));
+tile('roast_mutton', (ctx, rng) => meat(ctx, rng, [160, 96, 48], [132, 74, 36], [196, 134, 82]));
 
 tile('apple', (ctx) => {
   const r = [212, 50, 44], rD = [170, 34, 30], rL = [238, 96, 84];
@@ -607,9 +607,9 @@ tile('apple', (ctx) => {
   px(ctx, 9, 4, P.grassD); px(ctx, 10, 3, P.grassD);
 });
 
-tile('rotten_flesh', (ctx, rng) => {
-  fillNoiseRegion(ctx, rng, 4, 5, 9, 7, [[[142, 108, 62], 5], [[104, 122, 62], 4], [[88, 66, 44], 3]]);
-  px(ctx, 6, 7, [70, 90, 46]); px(ctx, 10, 9, [70, 90, 46]);
+tile('murk_jelly', (ctx, rng) => {
+  fillNoiseRegion(ctx, rng, 4, 5, 9, 7, [[[92, 78, 132], 5], [[70, 60, 104], 4], [[122, 108, 166], 3]]);
+  px(ctx, 6, 7, [232, 242, 122]); px(ctx, 10, 9, [200, 212, 110]);
 });
 
 function fillNoiseRegion(ctx, rng, x0, y0, w, h, colors) {

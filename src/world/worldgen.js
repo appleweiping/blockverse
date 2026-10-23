@@ -165,7 +165,7 @@ export class WorldGen {
       [B.COAL_ORE, 14, 10, 6, 96],
       [B.IRON_ORE, 10, 6, 4, 54],
       [B.GOLD_ORE, 3, 5, 4, 30],
-      [B.REDSTONE_ORE, 6, 6, 4, 16],
+      [B.EMBER_ORE, 6, 6, 4, 16],
       [B.DIAMOND_ORE, 2, 5, 4, 14],
       [B.GRAVEL, 6, 14, 8, 60],
       [B.DIRT, 8, 14, 8, 70],

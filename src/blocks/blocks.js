@@ -36,11 +36,11 @@ export const B = {
   IRON_ORE: 30,
   GOLD_ORE: 31,
   DIAMOND_ORE: 32,
-  REDSTONE_ORE: 33,
+  EMBER_ORE: 33,
   GLASS: 34,
-  GLOWSTONE: 35,
+  EMBER_LAMP: 35,
   TORCH: 36,
-  CRAFTING_TABLE: 37,
+  WORKBENCH: 37,
   FURNACE: 38,
   FURNACE_LIT: 39,
   BRICKS: 40,
@@ -167,18 +167,18 @@ reg(def(B.GOLD_ORE, 'gold_ore', 'Gold Ore', { hardness: 3, tool: TOOL_PICKAXE, m
 reg(def(B.DIAMOND_ORE, 'diamond_ore', 'Diamond Ore', {
   hardness: 3, tool: TOOL_PICKAXE, minTier: 3, drop: () => [{ id: I.DIAMOND, count: 1 }],
 }));
-reg(def(B.REDSTONE_ORE, 'redstone_ore', 'Redstone Ore', {
+reg(def(B.EMBER_ORE, 'ember_ore', 'Ember Ore', {
   hardness: 3, tool: TOOL_PICKAXE, minTier: 3,
-  drop: (rng) => [{ id: I.REDSTONE_DUST, count: 1 + ((rng() * 3) | 0) }],
+  drop: (rng) => [{ id: I.EMBER_DUST, count: 1 + ((rng() * 3) | 0) }],
 }));
 reg(def(B.GLASS, 'glass', 'Glass', { render: R_CUTOUT, opacity: 0, hardness: 0.3, drop: null, sound: 'glass' }));
-reg(def(B.GLOWSTONE, 'glowstone', 'Glowstone', { lightEmit: 15, hardness: 0.3, sound: 'glass' }));
+reg(def(B.EMBER_LAMP, 'ember_lamp', 'Ember Lamp', { lightEmit: 15, hardness: 0.3, sound: 'glass' }));
 reg(def(B.TORCH, 'torch', 'Torch', {
   solid: false, render: R_TORCH, opacity: 0, lightEmit: 14, hardness: 0.05, sound: 'wood',
 }));
-reg(def(B.CRAFTING_TABLE, 'crafting_table', 'Crafting Table', {
+reg(def(B.WORKBENCH, 'workbench', 'Workbench', {
   hardness: 2.5, tool: TOOL_AXE, sound: 'wood',
-  textures: { top: 'crafting_table_top', bottom: 'oak_planks', side: 'crafting_table_side', front: 'crafting_table_front' },
+  textures: { top: 'workbench_top', bottom: 'oak_planks', side: 'workbench_side', front: 'workbench_front' },
 }));
 reg(def(B.FURNACE, 'furnace', 'Furnace', {
   hardness: 3.5, tool: TOOL_PICKAXE, minTier: 1,

@@ -81,7 +81,7 @@ export class Chat {
         this.message('/tp <x> <y> <z> — teleport');
         this.message('/time set <day|noon|night|midnight|0..1>');
         this.message('/give <item> [count] — e.g. /give diamond_pickaxe');
-        this.message('/gamemode <survival|creative>');
+        this.message('/mode <survival|creative>');
         this.message('/seed  /spawn  /kill  /clear  /rd <2-16>  /heal');
         break;
       case 'tp': {
@@ -113,11 +113,11 @@ export class Chat {
         this.message(`Gave ${count - left}× ${itemInfo(id).display}`, '#9fdcff');
         break;
       }
-      case 'gamemode': {
+      case 'mode': {
         const m = args[0]?.[0];
         if (m === 'c' || args[0] === '1') p.mode = GAMEMODE_CREATIVE;
         else if (m === 's' || args[0] === '0') { p.mode = GAMEMODE_SURVIVAL; p.flying = false; }
-        else throw new Error('usage: /gamemode <survival|creative>');
+        else throw new Error('usage: /mode <survival|creative>');
         g.hud.renderStats();
         this.message(`Game mode: ${p.mode === GAMEMODE_CREATIVE ? 'creative' : 'survival'}`, '#9fdcff');
         break;

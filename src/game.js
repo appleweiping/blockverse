@@ -183,7 +183,7 @@ export class Game {
         }
       }
       switch (code) {
-        case 'F3':
+        case 'Backquote':
           this.hud.toggleDebug();
           return true;
         case 'Space':
@@ -367,7 +367,7 @@ export class Game {
     const hh = Math.floor(((t + 0.25) % 1) * 24).toString().padStart(2, '0');
     const mm = Math.floor((((t + 0.25) % 1) * 24 % 1) * 60).toString().padStart(2, '0');
     this.hud.setDebug(
-      `BlockVerse 1.0 | FPS ${this.fps}\n` +
+      `Blockverse | FPS ${this.fps}\n` +
       `XYZ ${p.x.toFixed(2)} / ${p.y.toFixed(2)} / ${p.z.toFixed(2)}\n` +
       `chunk ${Math.floor(p.x / 16)},${Math.floor(p.z / 16)}  biome ${BIOME_NAMES[biome] ?? '?'}\n` +
       `light sky ${light} block ${bl}  time ${hh}:${mm}\n` +

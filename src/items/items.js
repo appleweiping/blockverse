@@ -56,13 +56,13 @@ item(I.COAL, 'coal', 'Coal', { burnTime: 80 });
 item(I.IRON_INGOT, 'iron_ingot', 'Iron Ingot');
 item(I.GOLD_INGOT, 'gold_ingot', 'Gold Ingot');
 item(I.DIAMOND, 'diamond', 'Diamond');
-item(I.REDSTONE_DUST, 'redstone_dust', 'Redstone Dust');
-item(I.PORKCHOP_RAW, 'porkchop_raw', 'Raw Porkchop', { food: 3 });
-item(I.PORKCHOP_COOKED, 'porkchop_cooked', 'Cooked Porkchop', { food: 8 });
+item(I.EMBER_DUST, 'ember_dust', 'Ember Dust');
+item(I.PORK_RAW, 'raw_pork', 'Raw Pork', { food: 3 });
+item(I.PORK_ROAST, 'roast_pork', 'Roast Pork', { food: 8 });
 item(I.APPLE, 'apple', 'Apple', { food: 4 });
-item(I.ROTTEN_FLESH, 'rotten_flesh', 'Rotten Flesh', { food: 2 });
-item(I.MUTTON_RAW, 'mutton_raw', 'Raw Mutton', { food: 2 });
-item(I.MUTTON_COOKED, 'mutton_cooked', 'Cooked Mutton', { food: 6 });
+item(I.MURK_JELLY, 'murk_jelly', 'Murk Jelly', { food: 2 });
+item(I.MUTTON_RAW, 'raw_mutton', 'Raw Mutton', { food: 2 });
+item(I.MUTTON_ROAST, 'roast_mutton', 'Roast Mutton', { food: 6 });
 item(I.BRICK_ITEM, 'brick_item', 'Brick');
 item(I.CLAY_BALL, 'clay_ball', 'Clay Ball');
 
@@ -84,7 +84,7 @@ for (const [mat, ids] of [
 const BLOCK_BURN = new Map([
   [B.OAK_PLANKS, 15], [B.BIRCH_PLANKS, 15], [B.SPRUCE_PLANKS, 15],
   [B.OAK_LOG, 15], [B.BIRCH_LOG, 15], [B.SPRUCE_LOG, 15],
-  [B.CRAFTING_TABLE, 15], [B.COAL_ORE, 0], [B.DEAD_BUSH, 5],
+  [B.WORKBENCH, 15], [B.COAL_ORE, 0], [B.DEAD_BUSH, 5],
 ]);
 
 // Unified item info for any id (block or item).

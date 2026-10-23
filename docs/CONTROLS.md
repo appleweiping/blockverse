@@ -18,7 +18,7 @@
 | Left click (hold) | Mine the targeted block — crack overlay shows progress |
 | Left click | Attack a mob |
 | Right click | Place the held block |
-| Right click on crafting table / furnace | Open it (sneak to place a block against it instead) |
+| Right click on workbench / furnace | Open it (sneak to place a block against it instead) |
 | Right click with food | Eat |
 | Q | Drop one of the held item |
 | 1–9 / mouse wheel | Select hotbar slot |
@@ -30,7 +30,7 @@
 | E | Open/close inventory (survival: with 2×2 crafting; creative: item palette) |
 | Esc | Close screen / pause menu |
 | T or / | Open chat (/ pre-fills a command) |
-| F3 | Debug overlay |
+| ` (backquote) | Debug overlay |
 
 ### Inventory mouse rules
 
@@ -44,7 +44,7 @@
 
 - Each block has a hardness and an optional preferred tool class.
 - Better tool tiers mine faster; some blocks need a minimum tier to drop
-  anything (iron needs stone+, gold/diamond/redstone need iron+, obsidian
+  anything (iron needs stone+, gold/diamond/ember need iron+, obsidian
   needs diamond).
 - Tools lose 1 durability per block or hit; the bar under the icon shows wear.
 
@@ -58,7 +58,7 @@ Open chat with `T` or `/`, then:
 | `/tp <x> <y> <z>` | Teleport |
 | `/time set <day\|noon\|sunset\|night\|midnight\|0..1>` | Set time of day |
 | `/give <item> [count]` | Give items — names like `oak_planks`, `diamond_pickaxe`, `torch` |
-| `/gamemode <survival\|creative>` | Switch mode |
+| `/mode <survival|creative>` | Switch mode |
 | `/seed` | Show the world seed |
 | `/spawn` | Return to spawn |
 | `/heal` | Refill health, hunger, air |

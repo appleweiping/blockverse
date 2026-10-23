@@ -1,4 +1,4 @@
-// Concrete mob types: pig, sheep (passive), zombie (hostile).
+// Concrete mob types: pig, sheep (passive), murkling (hostile).
 // Original box-model designs built from shaded colored parts.
 
 import { Mob } from './mob.js';
@@ -41,7 +41,7 @@ export class Pig extends Mob {
   }
 
   onDeath() {
-    this.dropFn?.([{ id: I.PORKCHOP_RAW, count: 1 + ((Math.random() * 2) | 0) }]);
+    this.dropFn?.([{ id: I.PORK_RAW, count: 1 + ((Math.random() * 2) | 0) }]);
   }
 }
 
@@ -86,58 +86,68 @@ export class Sheep extends Mob {
   }
 }
 
-export class Zombie extends Mob {
+// Murkling: hostile, spawns in the dark. It does not burn in daylight; at
+// sunrise it digs itself back into the ground and is gone (no drops).
+export class Murkling extends Mob {
   constructor(scene, world, x, y, z) {
     super(scene, world, x, y, z);
     this.w = 0.6;
-    this.h = 1.9;
+    this.h = 1.8;
     this.health = 20;
     this.hostile = true;
     this.speed = 1.2;
     this.fleeSpeed = 2.9;   // chase speed
     this.attackCooldown = 0;
-    this.burnTimer = 0;
-    this.kind = 'zombie';
+    this.burrowT = null;    // seconds spent burrowing, null while active
+    this.kind = 'murkling';
   }
 
   buildModel() {
-    const skinC = 0x5a9c50, shirt = 0x3a6a8a, pants = 0x35506b;
-    this.part(0.5, 0.72, 0.3, shirt, 0, 1.12, 0);             // torso
-    this.part(0.42, 0.42, 0.42, skinC, 0, 1.72, 0);           // head
-    this.part(0.08, 0.08, 0.02, 0x1a1a1a, -0.1, 1.78, -0.22);
-    this.part(0.08, 0.08, 0.02, 0x1a1a1a, 0.1, 1.78, -0.22);
-    // outstretched arms
-    this.part(0.16, 0.16, 0.6, skinC, -0.34, 1.36, -0.24);
-    this.part(0.16, 0.16, 0.6, skinC, 0.34, 1.36, -0.24);
+    const hide = 0x3d3a55, hideD = 0x302d45, headC = 0x4a4466;
+    this.part(0.62, 0.86, 0.42, hide, 0, 0.94, 0.04);         // hunched body
+    this.part(0.56, 0.42, 0.5, headC, 0, 1.56, -0.08);        // wide head
+    this.part(0.11, 0.06, 0.02, 0xe8f27a, -0.13, 1.6, -0.34, true); // eyes glow
+    this.part(0.11, 0.06, 0.02, 0xe8f27a, 0.13, 1.6, -0.34, true);
     this.legs = [
-      this.legPart(pants, -0.14),
-      this.legPart(pants, 0.14),
+      this.limb(hideD, -0.15, 0.5, 0.2, 0.5),
+      this.limb(hideD, 0.15, 0.5, 0.2, 0.5),
+      // long arms hanging to the knees, swinging with the gait
+      this.limb(hideD, -0.4, 1.32, 0.14, 0.86),
+      this.limb(hideD, 0.4, 1.32, 0.14, 0.86),
     ];
   }
 
-  legPart(color, x) {
-    const leg = this.part(0.2, 0.76, 0.24, color, x, 0.76, 0);
-    leg.geometry = leg.geometry.clone();
-    leg.geometry.translate(0, -0.38, 0);
-    leg.position.y = 0.76;
-    return leg;
+  // a box hanging from a pivot at (x, top), so rotation.x swings it
+  limb(color, x, top, thick, len) {
+    const m = this.part(thick, len, thick + 0.04, color, x, top, 0);
+    m.geometry = m.geometry.clone();
+    m.geometry.translate(0, -len / 2, 0);
+    return m;
+  }
+
+  update(dt, player) {
+    if (this.burrowT === null || this.dead) {
+      super.update(dt, player);
+      return;
+    }
+    // sink into the ground, twisting, then vanish
+    this.burrowT += dt;
+    this.y -= dt * 0.9;
+    this.group.position.set(this.x, this.y, this.z);
+    this.group.rotation.y += dt * 5;
+    if (this.burrowT > 2.2) this.kill();
   }
 
   think(dt, player, playerDist) {
     this.attackCooldown = Math.max(0, this.attackCooldown - dt);
 
-    // burn in direct daylight
+    // morning: dig in if standing under open sky
     const day = this.world.materials.uniforms.uDay.value;
     const sky = this.world.getSkyW(Math.floor(this.x), Math.floor(this.y + 1.5), Math.floor(this.z));
-    if (day > 0.8 && sky >= 14) {
-      this.burnTimer += dt;
-      this.flashTime = 0.1;
-      if (this.burnTimer > 1) {
-        this.burnTimer = 0;
-        this.hurtCooldown = 0;
-        this.damage(2, null);
-        if (this.dead) return;
-      }
+    if (day > 0.8 && sky >= 13 && this.onGround) {
+      this.burrowT = 0;
+      this.moving = false;
+      return;
     }
 
     if (!player.dead && playerDist < 18) {
@@ -149,7 +159,7 @@ export class Zombie extends Mob {
       if (playerDist < 1.4 && this.attackCooldown <= 0) {
         const dy = Math.abs((player.y + 0.9) - (this.y + 1));
         if (dy < 1.6) {
-          player.damage(3, 'zombie');
+          player.damage(3, 'murkling');
           this.attackCooldown = 1.1;
         }
       }
@@ -163,6 +173,6 @@ export class Zombie extends Mob {
   }
 
   onDeath() {
-    this.dropFn?.([{ id: I.ROTTEN_FLESH, count: 1 + ((Math.random() * 2) | 0) }]);
+    this.dropFn?.([{ id: I.MURK_JELLY, count: 1 + ((Math.random() * 2) | 0) }]);
   }
 }

@@ -79,7 +79,7 @@ tree computes the exact same blocks for it — no seams, no ordering issues.
   attenuating through leaves (1) and water (2). Lateral spread uses BFS with
   loss 1 per step. The special rule: level-15 light propagating **downward**
   through air stays 15.
-- **Block light**: emitters (torch 14, glowstone 15, lit furnace 13) BFS
+- **Block light**: emitters (torch 14, ember lamp 15, lit furnace 13) BFS
   outward with loss 1 (+opacity).
 
 On block change (`lightBlockChange`):
@@ -147,7 +147,7 @@ voxel grid, shared by the player, item drops, and mobs.
 - **Mobs** (`src/entities/mob.js`, `mobs.js`): box-model creatures with
   vertex-shaded faces, wander/flee/chase state machines, 1-block hop,
   knockback, and voxel-light-aware tinting. The spawner keeps population caps
-  around the player and requires darkness for zombies.
+  around the player and requires darkness for murklings.
 
 ## 6. Persistence
 

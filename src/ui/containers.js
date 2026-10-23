@@ -1,4 +1,4 @@
-// Container UIs: player inventory (with 2x2 crafting), crafting table (3x3),
+// Container UIs: player inventory (with 2x2 crafting), workbench (3x3),
 // furnace, and the creative item palette. Handles cursor stack drag logic,
 // right-click split, shift-click quick move, and tooltips.
 
@@ -128,7 +128,7 @@ export class Containers {
     } else if (this.open === 'inventory') {
       this.renderCraftArea(win, 2, 'Crafting');
     } else if (this.open === 'crafting') {
-      this.renderCraftArea(win, 3, 'Crafting Table');
+      this.renderCraftArea(win, 3, 'Workbench');
     } else if (this.open === 'furnace') {
       this.renderFurnace(win);
     }

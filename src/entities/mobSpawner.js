@@ -1,6 +1,6 @@
 // Runtime mob spawning and despawning around the player.
 
-import { Pig, Sheep, Zombie } from './mobs.js';
+import { Pig, Sheep, Murkling } from './mobs.js';
 import { B, isSolid } from '../blocks/blocks.js';
 import { BIOME } from '../world/worldgen.js';
 
@@ -49,7 +49,7 @@ export class MobSpawner {
         const bl = this.world.getBlockLightW(wx, y, wz);
         const light = Math.max((sky / 15) * dayFactor * 15, bl);
         if (light > 7) continue;
-        this.spawnMob(Zombie, wx + 0.5, y, wz + 0.5);
+        this.spawnMob(Murkling, wx + 0.5, y, wz + 0.5);
         return;
       }
 

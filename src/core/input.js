@@ -18,7 +18,7 @@ export class Input {
     this.onWheel = null;
 
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'F3' || e.code === 'F5') e.preventDefault();
+      if (e.code === 'F5') e.preventDefault();
       if (this.onKeyDown && this.onKeyDown(e.code, e)) return;
       if (!this.captured) this.keys.add(e.code);
     });

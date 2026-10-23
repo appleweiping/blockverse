@@ -48,7 +48,7 @@ export class Screens {
     if (sub) {
       const s = document.createElement('div');
       s.className = 'subtitle';
-      s.textContent = 'An open-source voxel sandbox!';
+      s.textContent = 'Ride the wind up to the sky islands';
       el.appendChild(s);
     }
   }
@@ -122,7 +122,7 @@ export class Screens {
 
     const foot = document.createElement('div');
     foot.style.cssText = 'position:absolute;bottom:10px;font-size:12px;color:#888';
-    foot.textContent = 'BlockVerse — an original open-source voxel game. Not affiliated with Mojang or Microsoft.';
+    foot.textContent = 'Blockverse · open source · github.com/appleweiping/blockverse';
     el.appendChild(foot);
   }
 

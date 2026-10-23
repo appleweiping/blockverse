@@ -7,7 +7,7 @@ import { itemInfo, isBlockItem } from '../items/items.js';
 import { mulberry32 } from '../core/rng.js';
 
 // Blocks that open a UI instead of being a normal placement target.
-const USABLE = new Set([B.CRAFTING_TABLE, B.FURNACE, B.FURNACE_LIT]);
+const USABLE = new Set([B.WORKBENCH, B.FURNACE, B.FURNACE_LIT]);
 // Cross plants require solid ground below.
 const NEEDS_GROUND = new Set([B.TALL_GRASS, B.DANDELION, B.POPPY, B.SUGAR_CANE, B.DEAD_BUSH, B.MUSHROOM_BROWN, B.MUSHROOM_RED, B.CACTUS, B.TORCH]);
 
@@ -144,9 +144,9 @@ export class Interaction {
     const t = this.target;
     const held = p.heldStack();
 
-    // 1) use a block (crafting table, furnace) — unless sneaking
+    // 1) use a block (workbench, furnace) — unless sneaking
     if (t && USABLE.has(t.id) && !p.sneaking) {
-      this.cb.openUI(t.id === B.CRAFTING_TABLE ? 'crafting' : 'furnace', t);
+      this.cb.openUI(t.id === B.WORKBENCH ? 'crafting' : 'furnace', t);
       return;
     }
 

@@ -741,6 +741,44 @@ tile('moon', (ctx) => {
   px(ctx, 9, 8, [188, 192, 208]); px(ctx, 7, 10, [188, 192, 208]);
 });
 
+// --- sky islands ---
+const SKY = { base: [176, 186, 212], light: [204, 212, 232], dark: [146, 154, 186], vein: [232, 238, 250] };
+
+tile('skystone', (ctx, rng) => {
+  fillNoise(ctx, rng, [[SKY.base, 7], [SKY.light, 3], [SKY.dark, 3]]);
+  // pale streaks, as if wind-polished
+  for (let i = 0; i < 3; i++) {
+    const y = 2 + ((rng() * 12) | 0);
+    const x0 = (rng() * 8) | 0;
+    for (let x = x0; x < x0 + 5 + ((rng() * 4) | 0) && x < TILE; x++) px(ctx, x, y + (x % 5 === 0 ? 1 : 0), SKY.vein);
+  }
+});
+
+tile('wind_vent_top', (ctx, rng) => {
+  generators['skystone'](ctx, rng);
+  rect(ctx, 2, 2, 12, 12, [58, 64, 86]);
+  // four curved blades around a hub
+  const blade = [214, 228, 246], bladeD = [150, 166, 196];
+  for (let i = 0; i < 4; i++) {
+    const a = (i * Math.PI) / 2;
+    for (let r = 1; r < 6; r++) {
+      const t = a + r * 0.32;
+      const x = Math.round(7.5 + Math.cos(t) * r);
+      const y = Math.round(7.5 + Math.sin(t) * r);
+      px(ctx, x, y, r > 3 ? bladeD : blade);
+    }
+  }
+  rect(ctx, 7, 7, 2, 2, [240, 246, 255]);
+});
+
+tile('wind_vent_side', (ctx, rng) => {
+  generators['skystone'](ctx, rng);
+  for (const y of [4, 8, 12]) {
+    rect(ctx, 2, y, 12, 2, [58, 64, 86]);
+    rect(ctx, 2, y, 12, 1, [40, 44, 62]);
+  }
+});
+
 // ---------- public API ----------
 
 export function tileNames() {

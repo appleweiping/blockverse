@@ -42,3 +42,9 @@ test('an empty or nonsense grid crafts nothing', () => {
   assert.equal(matchRecipe([_, _, _, _], 2, 2), null);
   assert.equal(matchRecipe([B.DIRT, B.SAND, _, _], 2, 2), null);
 });
+
+test('wind vents are crafted from skystone around an iron ingot', () => {
+  const K = B.SKYSTONE, F = I.IRON_INGOT;
+  assert.deepEqual(matchRecipe([K, _, K, _, F, _, K, _, K], 3, 3), { id: B.WIND_VENT, count: 2 });
+  assert.equal(matchRecipe([K, _, K, _, F, _, K, _, _], 3, 3), null);
+});

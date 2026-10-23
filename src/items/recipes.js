@@ -50,6 +50,9 @@ shaped(B.SANDSTONE, 1, ['XX', 'XX'], { X: [B.SAND] });
 shaped(B.BRICKS, 1, ['XX', 'XX'], { X: [I.BRICK_ITEM] });
 shaped(B.EMBER_LAMP, 1, ['XX', 'XX'], { X: [I.EMBER_DUST] });
 shapeless(B.MOSSY_COBBLE, 1, [[B.COBBLESTONE], [B.TALL_GRASS]]);
+// Skystone only comes from the sky islands, so the first trip up uses a
+// natural vent; after that you can build your own.
+shaped(B.WIND_VENT, 2, ['S.S', '.I.', 'S.S'], { S: [B.SKYSTONE], I: [I.IRON_INGOT] });
 
 // ---- matching ----
 

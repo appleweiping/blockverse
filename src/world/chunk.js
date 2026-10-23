@@ -1,4 +1,5 @@
 import { CHUNK_X, CHUNK_Y, CHUNK_Z, CHUNK_VOLUME, blockIndex } from '../core/constants.js';
+import { B } from '../blocks/blocks.js';
 
 export function chunkKey(cx, cz) {
   return `${cx},${cz}`;
@@ -22,6 +23,7 @@ export class Chunk {
     this.modified = false;     // needs saving
     this.generating = false;
     this.blockEntities = new Map(); // localIndex -> entity data (furnace state)
+    this.vents = new Set();         // local indices of wind vents (for the wind effect)
   }
 
   setData(blocks, heightMap, biomeMap) {
@@ -29,6 +31,8 @@ export class Chunk {
     this.heightMap = heightMap;
     this.biomeMap = biomeMap;
     this.hasBlocks = true;
+    this.vents.clear();
+    for (let i = 0; i < blocks.length; i++) if (blocks[i] === B.WIND_VENT) this.vents.add(i);
   }
 
   ensureMeta() {

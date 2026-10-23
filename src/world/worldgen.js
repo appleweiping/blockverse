@@ -5,6 +5,7 @@ import { CHUNK_X, CHUNK_Y, CHUNK_Z, SEA_LEVEL, blockIndex } from '../core/consta
 import { Noise } from '../core/noise.js';
 import { coordRng } from '../core/rng.js';
 import { B } from '../blocks/blocks.js';
+import { VENT_REACH } from './wind.js';
 
 export const BIOME = {
   OCEAN: 0, BEACH: 1, PLAINS: 2, FOREST: 3, BIRCH_FOREST: 4,
@@ -15,6 +16,14 @@ export const BIOME_NAMES = [
   'Ocean', 'Beach', 'Plains', 'Forest', 'Birch Forest',
   'Desert', 'Snowy Tundra', 'Snowy Forest', 'Swamp', 'Mountains',
 ];
+
+// Sky islands: a sparse 2D noise mask decides where they float; the mask
+// value sets how thick each column is, so islands are flat on top and hang
+// down like an upside-down hill. Wind vents sit on the ground just outside
+// an island's shadow.
+export const ISLE_THRESHOLD = 0.3;
+export const ISLE_CLEARANCE = 12;   // min air between terrain and island bottom
+const ISLE_EDGE = [ISLE_THRESHOLD - 0.06, ISLE_THRESHOLD - 0.012];
 
 function smoothstep(a, b, x) {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -34,6 +43,44 @@ export class WorldGen {
     this.cave2 = new Noise(seed + 8);
     this.mountainMask = new Noise(seed + 9);
     this.cavern = new Noise(seed + 10);
+    this.isle = new Noise(seed + 11);
+    this.isleAlt = new Noise(seed + 12);
+    this.isleCrag = new Noise(seed + 13);
+  }
+
+  isleMask(wx, wz) {
+    return this.isle.fbm2(wx / 90, wz / 90, 3);
+  }
+
+  // Sky island column at (wx, wz) as { top, bottom } (inclusive), or null.
+  islandAt(wx, wz, ground) {
+    const v = this.isleMask(wx, wz);
+    if (v <= ISLE_THRESHOLD) return null;
+    ground ??= this.heightAt(wx, wz);
+    const t = Math.min(1, (v - ISLE_THRESHOLD) / 0.16);
+    const base = Math.round(96 + this.isleAlt.noise2(wx / 260, wz / 260) * 7);
+    const crag = (this.isleCrag.noise2(wx / 9, wz / 9) + 1) / 2;
+    const top = base + Math.round(t * 3);
+    const bottom = base - 1 - Math.round(Math.pow(t, 0.7) * 18 * (0.65 + 0.35 * crag));
+    if (bottom - ground < ISLE_CLEARANCE) return null; // too close to a mountain
+    return { top, bottom };
+  }
+
+  // Is there an island column within r blocks (sampled on two rings)?
+  islandWithin(wx, wz, r) {
+    for (const d of [r / 2, r]) {
+      for (let a = 0; a < 8; a++) {
+        const ang = (a * Math.PI) / 4;
+        if (this.islandAt(Math.round(wx + Math.cos(ang) * d), Math.round(wz + Math.sin(ang) * d))) return true;
+      }
+    }
+    return false;
+  }
+
+  // Just outside an island: where natural wind vents may appear.
+  nearIslandEdge(wx, wz) {
+    const v = this.isleMask(wx, wz);
+    return v > ISLE_EDGE[0] && v < ISLE_EDGE[1];
   }
 
   // Terrain height (pre-cave, pre-decoration). Pure function of (x, z).
@@ -145,6 +192,13 @@ export class WorldGen {
           blocks[idx] = id;
         }
 
+        const isle = this.islandAt(wx, wz, hF);
+        if (isle) {
+          for (let y = isle.bottom; y <= isle.top; y++) {
+            blocks[blockIndex(x, y, z)] = y === isle.top ? B.GRASS : y >= isle.top - 2 ? B.DIRT : B.SKYSTONE;
+          }
+        }
+
         // occasional clay pockets under water
         if (biome === BIOME.OCEAN || biome === BIOME.SWAMP) {
           const r = coordRng(this.seed, wx, wz, 33)();
@@ -194,14 +248,18 @@ export class WorldGen {
   // Features from the 3x3 chunk neighbourhood may reach into this chunk.
   // Each feature is fully determined by its origin chunk's seed, so every
   // chunk that overlaps it generates the exact same blocks.
+  // Vents go last so no neighbouring tree can grow into their column.
   decorate(blocks, cx, cz) {
+    const vents = [];
     for (let dx = -1; dx <= 1; dx++) {
       for (let dz = -1; dz <= 1; dz++) {
         for (const f of this.chunkFeatures(cx + dx, cz + dz)) {
-          this.applyFeature(blocks, cx, cz, f);
+          if (f.type === 'vent') vents.push(f);
+          else this.applyFeature(blocks, cx, cz, f);
         }
       }
     }
+    for (const f of vents) this.applyFeature(blocks, cx, cz, f);
   }
 
   chunkFeatures(cx, cz) {
@@ -288,7 +346,44 @@ export class WorldGen {
         }
       }
     }
+    this.islandFeatures(cx, cz, features);
     return features;
+  }
+
+  // Trees and grass on sky islands, and at most one wind vent per chunk.
+  // Separate rng stream, so the ground features above stay as they were.
+  islandFeatures(cx, cz, features) {
+    const rng = coordRng(this.seed, cx, cz, 778);
+    const baseX = cx * CHUNK_X;
+    const baseZ = cz * CHUNK_Z;
+    for (let i = 0; i < 10; i++) {
+      const wx = baseX + ((rng() * CHUNK_X) | 0);
+      const wz = baseZ + ((rng() * CHUNK_Z) | 0);
+      const roll = rng();
+      const isle = this.islandAt(wx, wz);
+      if (!isle) continue;
+      if (i < 2 && isle.top - isle.bottom >= 6) {
+        if (roll < 0.7) {
+          features.push({
+            type: 'tree', kind: roll < 0.5 ? 'oak' : 'birch', wx, wy: isle.top + 1, wz,
+            size: 4 + ((rng() * 2) | 0), rng: coordRng(this.seed, wx, wz, 556),
+          });
+        }
+      } else {
+        features.push({ type: 'plant', block: roll < 0.15 ? B.DANDELION : B.TALL_GRASS, wx, wy: isle.top + 1, wz });
+      }
+    }
+    if (rng() < 0.6) {
+      for (let i = 0; i < 12; i++) {
+        const wx = baseX + 1 + ((rng() * (CHUNK_X - 2)) | 0);
+        const wz = baseZ + 1 + ((rng() * (CHUNK_Z - 2)) | 0);
+        if (!this.nearIslandEdge(wx, wz) || !this.islandWithin(wx, wz, 8)) continue;
+        const h = Math.floor(this.heightAt(wx, wz));
+        if (h <= SEA_LEVEL + 1) continue;
+        features.push({ type: 'vent', wx, wy: h, wz });
+        break;
+      }
+    }
   }
 
   applyFeature(blocks, cx, cz, f) {
@@ -299,6 +394,12 @@ export class WorldGen {
       const idx = blockIndex(x, wy, z);
       if (onlyAir && blocks[idx] !== B.AIR) return;
       blocks[idx] = id;
+    };
+    const get = (wx, wy, wz) => {
+      const x = wx - cx * CHUNK_X;
+      const z = wz - cz * CHUNK_Z;
+      if (x < 0 || x >= CHUNK_X || z < 0 || z >= CHUNK_Z || wy < 0 || wy >= CHUNK_Y) return -1;
+      return blocks[blockIndex(x, wy, z)];
     };
 
     switch (f.type) {
@@ -312,6 +413,25 @@ export class WorldGen {
       case 'plant':
         put(f.wx, f.wy, f.wz, f.block);
         break;
+      case 'vent': {
+        put(f.wx, f.wy, f.wz, B.WIND_VENT, false);
+        // keep the column open
+        for (let y = f.wy + 1; y <= f.wy + VENT_REACH; y++) put(f.wx, y, f.wz, B.AIR, false);
+        // ring of skystone in the ground so you can spot it
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dz = -1; dz <= 1; dz++) {
+            if (!dx && !dz) continue;
+            for (let y = f.wy + 1; y >= f.wy - 1; y--) {
+              const id = get(f.wx + dx, y, f.wz + dz);
+              if (id === B.GRASS || id === B.SNOWY_GRASS || id === B.DIRT || id === B.SAND || id === B.STONE) {
+                if (get(f.wx + dx, y + 1, f.wz + dz) === B.AIR) put(f.wx + dx, y, f.wz + dz, B.SKYSTONE, false);
+                break;
+              }
+            }
+          }
+        }
+        break;
+      }
     }
   }
 

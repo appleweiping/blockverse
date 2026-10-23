@@ -76,6 +76,8 @@ export class ChunkStore {
     c.setMeta(lx, wy, lz, meta);
     c.modified = true;
     c.blockEntities.delete(idx);
+    if (old === B.WIND_VENT) c.vents.delete(idx);
+    if (id === B.WIND_VENT) c.vents.add(idx);
 
     if (c.hasLight) {
       lightBlockChange(this, wx, wy, wz, old, id, this.dirtyMeshes);
@@ -115,6 +117,25 @@ export class ChunkStore {
   biomeMapAt(wx, wz) {
     const c = this.chunks.get(chunkKey(wx >> 4, wz >> 4));
     return c?.biomeMap ? c.biomeMap[(wx & 15) * CHUNK_Z + (wz & 15)] : -1;
+  }
+
+  // World positions of wind vents in loaded chunks within r blocks (square).
+  ventsNear(px, pz, r) {
+    const out = [];
+    const c0x = Math.floor((px - r) / 16), c1x = Math.floor((px + r) / 16);
+    const c0z = Math.floor((pz - r) / 16), c1z = Math.floor((pz + r) / 16);
+    for (let cx = c0x; cx <= c1x; cx++) {
+      for (let cz = c0z; cz <= c1z; cz++) {
+        const c = this.chunks.get(chunkKey(cx, cz));
+        if (!c?.vents.size) continue;
+        for (const idx of c.vents) {
+          const y = idx % CHUNK_Y;
+          const xz = (idx - y) / CHUNK_Y;
+          out.push({ x: cx * 16 + Math.floor(xz / CHUNK_Z), y, z: cz * 16 + (xz % CHUNK_Z) });
+        }
+      }
+    }
+    return out;
   }
 
   // Chunks whose data changed since last save.

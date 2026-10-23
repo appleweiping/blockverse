@@ -117,6 +117,9 @@ export class Sfx {
       case 'toolbreak':
         this.tone({ freq: 500, endFreq: 120, dur: 0.3, gain: 0.35, type: 'square' });
         break;
+      case 'gust':
+        this.noise({ freq: 900, q: 0.5, dur: 0.7, gain: 0.22, type: 'bandpass', pitchDrop: 650 });
+        break;
       case 'splash':
         this.noise({ freq: 1100, q: 0.4, dur: 0.25, gain: 0.35, type: 'highpass', pitchDrop: 600 });
         break;

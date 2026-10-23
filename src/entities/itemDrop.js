@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import { moveEntity } from '../core/physics.js';
+import { liftAt, LIFT_SPEED } from '../world/wind.js';
 import { isBlockItem, itemInfo } from '../items/items.js';
 import { blockInfo, R_CROSS, R_TORCH } from '../blocks/blocks.js';
 import { generateTile } from '../render/textures.js';
@@ -61,8 +62,10 @@ export class ItemDrop {
     this.pickupDelay = Math.max(0, this.pickupDelay - dt);
     if (this.age > 300) { this.kill(); return; }
 
-    // gravity + collision
-    this.vy -= 22 * dt;
+    // gravity (or a wind vent's lift) + collision
+    const lift = liftAt(this.world, this.x, this.y, this.z);
+    this.vy += (LIFT_SPEED * 0.7 - this.vy) * Math.min(1, 4 * dt) * lift;
+    this.vy -= 22 * dt * (1 - lift);
     this.vy = Math.max(this.vy, -30);
     this.vx *= (1 - Math.min(1, 6 * dt));
     this.vz *= (1 - Math.min(1, 6 * dt));

@@ -9,6 +9,7 @@ import { BlockHighlight } from './render/highlight.js';
 import { EntityManager } from './entities/entityManager.js';
 import { Hud } from './ui/hud.js';
 import { Sky } from './render/sky.js';
+import { WindFx } from './render/windFx.js';
 import { Containers } from './ui/containers.js';
 import { tickFurnaces } from './items/furnace.js';
 import { MobSpawner } from './entities/mobSpawner.js';
@@ -66,6 +67,7 @@ export class Game {
 
     this.hud = new Hud(atlas, this.player);
     this.sky = new Sky(this.scene, this.world.materials.uniforms);
+    this.windFx = new WindFx(this.scene, this.world);
     this.containers = new Containers(this);
     this._furnaceUiTimer = 0;
     this.mobSpawner = new MobSpawner(this.scene, this.world, this.entities);
@@ -275,8 +277,11 @@ export class Game {
 
     if (!gamePaused || document.hidden) {
       const wasInWater = this.player.inWater;
+      const wasLifted = this.player.lift > 0;
       const px0 = this.player.x, pz0 = this.player.z;
       this.player.update(this.input, dt, gamePaused);
+      if (!wasLifted && this.player.lift > 0) this.sfx?.play('gust');
+      this.windFx.update(dt, this.player);
       this.interaction.update(this.input, dt, gamePaused);
       this.entities.update(dt, this.player);
       this.mobSpawner.update(dt, this.player, day);
@@ -373,7 +378,8 @@ export class Game {
       `light sky ${light} block ${bl}  time ${hh}:${mm}\n` +
       `chunks ${this.world.stats.chunks} genQ ${this.world.stats.genQueue} dirty ${this.world.dirtyMeshes.size}\n` +
       `draws ${this.renderer.info.render.calls} tris ${(this.renderer.info.render.triangles / 1000).toFixed(0)}k ` +
-      `mode ${p.mode === GAMEMODE_CREATIVE ? 'creative' : 'survival'}${p.flying ? ' (fly)' : ''}`,
+      `mode ${p.mode === GAMEMODE_CREATIVE ? 'creative' : 'survival'}${p.flying ? ' (fly)' : ''}` +
+      `${p.lift > 0 ? `  lift ${p.lift.toFixed(2)}` : ''}${p.windborne ? '  gliding' : ''}`,
     );
   }
 
@@ -416,6 +422,7 @@ export class Game {
     document.removeEventListener('visibilitychange', this._onVisibility);
     window.removeEventListener('resize', this._onResize);
     this.entities.dispose();
+    this.windFx.dispose();
     this.world.dispose();
     this.renderer.dispose();
   }

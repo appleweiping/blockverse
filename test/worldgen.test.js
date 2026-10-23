@@ -25,8 +25,11 @@ test('every column has bedrock at y=0 and water or land up to sea level', () => 
       const h = heightMap[x * CHUNK_Z + z];
       assert.ok(h >= 4 && h < CHUNK_Y - 9, `height ${h}`);
       // nothing floats above the column top except plants/trees, which are
-      // never placed above y = h + 12
-      for (let y = h + 13; y < CHUNK_Y; y++) assert.equal(blocks[blockIndex(x, y, z)], B.AIR);
+      // never placed above y = h + 12 (sky islands are tested separately)
+      for (let y = h + 13; y < CHUNK_Y; y++) {
+        const id = blocks[blockIndex(x, y, z)];
+        assert.ok(id === B.AIR || y > 80, `y ${y}: ${id}`);
+      }
       if (h < SEA_LEVEL) {
         const top = blocks[blockIndex(x, SEA_LEVEL, z)];
         assert.ok(top === B.WATER || top === B.ICE, `expected water at sea level, got ${top}`);

@@ -7,6 +7,7 @@ import {
 } from '../core/constants.js';
 import { moveEntity, entityInBlock, pointInWater } from '../core/physics.js';
 import { B } from '../blocks/blocks.js';
+import { liftAt, LIFT_SPEED, GLIDE_FALL } from '../world/wind.js';
 import { itemInfo, makeStack, mergeStack, maxStack } from '../items/items.js';
 
 export class Player {
@@ -24,6 +25,8 @@ export class Player {
     this.sneaking = false;
     this.inWater = false;
     this.headInWater = false;
+    this.lift = 0;            // 0..1 while inside a wind vent's column
+    this.windborne = false;   // lifted by a vent and not landed yet: glide, no fall damage
     this.mode = GAMEMODE_SURVIVAL;
 
     // survival stats
@@ -128,11 +131,23 @@ export class Player {
       this.vy = Math.max(this.vy, -3.5);
       if (!paused && input.down('Space')) this.vy = Math.min(this.vy + 24 * dt, 3.2);
     } else {
-      this.vy -= GRAVITY * dt;
-      this.vy = Math.max(this.vy, -60);
-      if (!paused && input.down('Space') && this.onGround) {
-        this.vy = JUMP_SPEED;
-        this.addExhaustion(this.sprinting ? 0.2 : 0.05);
+      this.lift = liftAt(this.world, this.x, this.y + 0.1, this.z);
+      if (this.lift > 0) {
+        // ride the column up; sneak to sink back down it
+        const target = this.sneaking ? -2.5 : LIFT_SPEED;
+        this.vy += (target - this.vy) * Math.min(1, 4 * dt) * this.lift;
+        this.vy -= GRAVITY * dt * (1 - this.lift);
+        // the column keeps you near its middle unless you walk out
+        this.vx += (Math.floor(this.x) + 0.5 - this.x) * 5 * dt;
+        this.vz += (Math.floor(this.z) + 0.5 - this.z) * 5 * dt;
+        this.windborne = true;
+      } else {
+        this.vy -= GRAVITY * dt;
+        this.vy = Math.max(this.vy, this.windborne ? -GLIDE_FALL : -60);
+        if (!paused && input.down('Space') && this.onGround) {
+          this.vy = JUMP_SPEED;
+          this.addExhaustion(this.sprinting ? 0.2 : 0.05);
+        }
       }
     }
 
@@ -144,9 +159,10 @@ export class Player {
       onGround = onGround || r.onGround;
     }
     this.onGround = onGround;
+    if ((this.onGround && this.lift === 0) || this.inWater || this.flying) this.windborne = false;
 
-    // fall damage tracking
-    if (!creative && !this.flying) {
+    // fall damage tracking (none while gliding down from a wind column)
+    if (!creative && !this.flying && !this.windborne) {
       if (!this.onGround && !this.inWater && this.vy < 0) {
         if (this.fallStart === null) this.fallStart = this.y + Math.abs(this.vy * dt); // approx
         // fallStart records highest point; keep max
